@@ -15,7 +15,7 @@ function validateErrorsHandler(req, res, next) {
 	next();
 }
 
-exports.signupPost = [
+exports.signUp = [
 	check("fullName", "This field is require")
 		.trim()
 		.escape()
@@ -31,9 +31,9 @@ exports.signupPost = [
 	validateErrorsHandler,
 	async (req, res, next) => {
 		try {
-			const { fullName, username, password, signupKey } = req.body;
+			const { fullName, username, password, signUpKey } = req.body;
 
-			if (signupKey != process.env.SIGNUP_SECRET || !signupKey) {
+			if (signUpKey != process.env.SIGNUP_SECRET || !signUpKey) {
 				return res
 					.status(400)
 					.json({ errors: "Your sign up key is missing or incorrect" });
@@ -58,7 +58,7 @@ exports.signupPost = [
 	},
 ];
 
-exports.loginPost = [
+exports.logIn = [
 	check("username", "Username need to be atleast 4 characters long")
 		.trim()
 		.escape()
