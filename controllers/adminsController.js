@@ -5,6 +5,16 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
+function validateErrorsHandler(req, res, next) {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		return res.status(400).json({ errors: errors.mapped() });
+	}
+
+	next();
+}
+
 exports.signupPost = [
 	check("fullName", "This field is require")
 		.trim()
@@ -18,13 +28,8 @@ exports.signupPost = [
 		.trim()
 		.escape()
 		.isLength({ min: 4 }),
+	validateErrorsHandler,
 	async (req, res, next) => {
-		const errors = validationResult(req);
-
-		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.mapped() });
-		}
-
 		try {
 			const { fullName, username, password, signupKey } = req.body;
 
@@ -50,5 +55,24 @@ exports.signupPost = [
 		} catch (error) {
 			return next(error);
 		}
+	},
+];
+
+exports.loginPost = [
+	check("username", "Username need to be atleast 4 characters long")
+		.trim()
+		.escape()
+		.isLength({ min: 4 }),
+	check("password", "Password need to be atleast 4 characters long")
+		.trim()
+		.escape()
+		.isLength({ min: 4 }),
+	validateErrorsHandler,
+	passport.authenticate("local", { session: false }),
+	(req, res, next) => {
+		const { user } = req;
+		const token = jwt.sign({ sub: user._id }, process.env.TOKEN_SECRET);
+
+		res.status(200).json({ user, token });
 	},
 ];
