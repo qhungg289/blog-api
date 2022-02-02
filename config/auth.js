@@ -10,8 +10,8 @@ const bcrypt = require("bcryptjs");
 // Set up local strategy
 // -------------------------
 passport.use(
-	// Create an instance of LocalStrategy class, with session disabled
-	new LocalStrategy({ session: false }, async (username, password, done) => {
+	// Create an instance of LocalStrategy class
+	new LocalStrategy(async (username, password, done) => {
 		try {
 			// Find one user from the username
 			const user = await AdminModel.findOne({ username: username });
@@ -43,7 +43,6 @@ passport.use(
 const jwtOptions = {
 	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 	secretOrKey: process.env.TOKEN_SECRET,
-	session: false,
 };
 
 passport.use(
