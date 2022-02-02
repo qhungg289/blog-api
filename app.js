@@ -24,6 +24,10 @@ const postsRouter = require("./routes/posts");
 app.use("/admins", adminsRouter);
 app.use("/posts", postsRouter);
 
+app.use((err, req, res, next) => {
+	res.status(500).json({ errors: "Something went wrong" });
+});
+
 // Get the port number and listen for incoming request
 const port = process.env.PORT || 8000;
 app.listen(port, () => console.log(`Server started on port: ${port}`));
