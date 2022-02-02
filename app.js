@@ -18,10 +18,12 @@ app.use(express.json()); // Accept incomming json data
 app.use(express.urlencoded({ extended: false }));
 app.use(passport.initialize()); // Initialize passport js
 
-app.get("/", (req, res, next) => {
-	res.json({ msg: "Hello World" });
-});
+const adminsRouter = require("./routes/admins");
+const postsRouter = require("./routes/posts");
 
-// Get the port number and listen to incoming request
+app.use("/admins", adminsRouter);
+app.use("/posts", postsRouter);
+
+// Get the port number and listen for incoming request
 const port = process.env.PORT || 8000;
 app.listen(port, () => console.log(`Server started on port: ${port}`));
