@@ -1,30 +1,30 @@
 {
-  "name": "blog-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "start": "node .",
-    "dev": "nodemon ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^14.3.2",
-    "express": "^4.17.2",
-    "express-validator": "^6.14.0",
-    "jsonwebtoken": "^8.5.1",
-    "luxon": "^2.3.0",
-    "mongoose": "^6.1.8",
-    "morgan": "^1.10.0",
-    "passport": "^0.5.2",
-    "passport-jwt": "^4.0.0",
-    "passport-local": "^1.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.15"
-  }
+	"name": "blog-api",
+	"version": "1.0.0",
+	"description": "",
+	"main": "app.js",
+	"scripts": {
+		"start": "node .",
+		"dev": "set NODE_ENV=development && nodemon ."
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"cors": "^2.8.5",
+		"dotenv": "^14.3.2",
+		"express": "^4.17.2",
+		"express-validator": "^6.14.0",
+		"jsonwebtoken": "^8.5.1",
+		"luxon": "^2.3.0",
+		"mongoose": "^6.1.8",
+		"morgan": "^1.10.0",
+		"passport": "^0.5.2",
+		"passport-jwt": "^4.0.0",
+		"passport-local": "^1.0.0"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.15"
+	}
 }
