@@ -1,19 +1,10 @@
 require("dotenv").config();
 const AdminModel = require("../models/AdminModel");
-const { check, validationResult } = require("express-validator");
+const { check } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
-
-function validateErrorsHandler(req, res, next) {
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		return res.status(400).json({ errors: errors.mapped() });
-	}
-
-	next();
-}
+const validateErrorsHandler = require("../error_handlers/validateErrorsHandler");
 
 exports.signUp = [
 	check("fullName", "This field is require")
