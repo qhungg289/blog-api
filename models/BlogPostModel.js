@@ -4,7 +4,7 @@ const { DateTime } = require("luxon");
 const blogPostSchema = new mongoose.Schema({
 	title: { type: String, required: true },
 	content: { type: String, required: true },
-	likesCount: { type: Number, required: true, min: 0 },
+	likesCount: { type: Number, default: 0, min: 0 },
 	comments: [{ type: mongoose.Types.ObjectId, ref: "Comment" }],
 	publishStatus: { type: Boolean, required: true },
 	createdAt: { type: Date, default: () => DateTime.now() },
