@@ -62,7 +62,9 @@ exports.logIn = [
 	passport.authenticate("local", { session: false }),
 	(req, res, next) => {
 		const { user } = req;
-		const token = jwt.sign({ sub: user._id }, process.env.TOKEN_SECRET);
+		const token = jwt.sign({ sub: user._id }, process.env.TOKEN_SECRET, {
+			expiresIn: "2 days",
+		});
 
 		res.status(200).json({ user, token });
 	},
