@@ -52,6 +52,10 @@ passport.use(
 			// Find a user with the jwt_payload.sub (user._id)
 			const user = await AdminModel.findById(jwt_payload.sub);
 
+			if (!user) {
+				return done(null, false);
+			}
+
 			return done(null, user);
 		} catch (error) {
 			return done(error);
