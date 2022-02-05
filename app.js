@@ -25,9 +25,7 @@ app.use("/admins", adminsRouter);
 app.use("/posts", postsRouter);
 
 app.use((err, req, res, next) => {
-	if (process.env.NODE_ENV == "development") {
-		console.error(err.stack);
-	}
+	console.error(err.stack);
 
 	res.status(500).json({ errors: "Something went wrong" });
 });
