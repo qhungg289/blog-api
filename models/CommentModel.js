@@ -5,7 +5,7 @@ const commentSchema = new mongoose.Schema({
 	author: { type: String, default: "Anonymous" },
 	belongToPost: { type: mongoose.Types.ObjectId, ref: "BlogPost" },
 	content: { type: String, required: true },
-	likesCount: { type: Number, required: true, min: 0 },
+	likesCount: { type: Number, default: 0, min: 0 },
 	createdAt: { type: Date, default: () => DateTime.now() },
 });
 
