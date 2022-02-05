@@ -23,18 +23,27 @@ router.get("/:postId/likes", postsController.getLikesOfPost);
 router.put("/:postId/likes", postsController.updateLikesOfPost);
 
 // Get all comments of one post
-router.get("/posts/:postId/comments");
+router.get("/:postId/comments", postsController.getAllCommentsOfPost);
 
 // Create new comment for one post
-router.post("/posts/:postId/comments");
+router.post("/:postId/comments", postsController.createNewComment);
+
+// Get one comment
+router.get("/:postId/comments/:commentId", postsController.getOneComment);
 
 // Delete one comment (PROTECTED)
-router.delete("/posts/:postId/comments/:commentId");
+router.delete("/:postId/comments/:commentId", postsController.deleteOneComment);
 
 // Get one comment likes count
-router.get("/posts/:postId/comments/:commentId/likes");
+router.get(
+	"/:postId/comments/:commentId/likes",
+	postsController.getLikesOfComment
+);
 
 // Update one comment likes count
-router.put("/posts/:postId/comments/:commentId/likes");
+router.put(
+	"/:postId/comments/:commentId/likes",
+	postsController.updateLikesOfComment
+);
 
 module.exports = router;
