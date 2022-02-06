@@ -7,8 +7,10 @@ const validateErrorsHandler = require("../error_handlers/validateErrorsHandler")
 
 exports.getAllPosts = async (req, res, next) => {
 	try {
+		// Get the list of all posts and populate "comments" field
 		const posts = await BlogPostModel.find({}).populate("comments");
 
+		// Respond posts list to the client
 		res.status(200).json({ posts });
 	} catch (error) {
 		return next(error);
@@ -16,7 +18,9 @@ exports.getAllPosts = async (req, res, next) => {
 };
 
 exports.createNewPost = [
+	// Authenticate with JWT with session disabled
 	passport.authenticate("jwt", { session: false }),
+	// Validate the incoming json
 	check("title", "Title can't be empty").trim().escape().isLength({ min: 1 }),
 	check("content", "Content can't be empty")
 		.trim()
@@ -26,8 +30,10 @@ exports.createNewPost = [
 	validateErrorsHandler,
 	async (req, res, next) => {
 		try {
+			// Extract all the properties from req.body
 			const { title, content, publishStatus } = req.body;
 
+			// Waiting for 2 promises to resolve and return post and user
 			const [post, user] = await Promise.all([
 				BlogPostModel.create({
 					title,
@@ -37,8 +43,11 @@ exports.createNewPost = [
 				AdminModel.findById(req.user._id).exec(),
 			]);
 
+			// Append new created post to the end of the blogPosts array
 			user.blogPosts = [...user.blogPosts, post];
 
+			// Save user and post documents to the database then send a respond with
+			// the messeage and the post object
 			await Promise.all([post.save(), user.save()]).then(
 				res.status(200).json({ msg: "Success", post })
 			);
@@ -50,10 +59,12 @@ exports.createNewPost = [
 
 exports.getOnePost = async (req, res, next) => {
 	try {
+		// Find one post with the postId params and populate "comments" field
 		const post = await BlogPostModel.findById(req.params.postId).populate(
 			"comments"
 		);
 
+		// Respond with post
 		res.status(200).json({ post });
 	} catch (error) {
 		return next(error);
@@ -61,7 +72,9 @@ exports.getOnePost = async (req, res, next) => {
 };
 
 exports.updateOnePost = [
+	// Authenticate with JWT with session disabled
 	passport.authenticate("jwt", { session: false }),
+	// Validate the incoming json
 	check("title", "Title can't be empty").trim().escape().isLength({ min: 1 }),
 	check("content", "Content can't be empty")
 		.trim()
@@ -73,6 +86,8 @@ exports.updateOnePost = [
 		try {
 			const { title, content, publishStatus } = req.body;
 
+			// Use postId params to find and update,
+			// with new: true to return a modified document
 			const post = await BlogPostModel.findByIdAndUpdate(
 				req.params.postId,
 				{ title, content, publishStatus },
@@ -87,6 +102,7 @@ exports.updateOnePost = [
 ];
 
 exports.deleteOnePost = [
+	// Authenticate with JWT with session disabled
 	passport.authenticate("jwt", { session: false }),
 	async (req, res, next) => {
 		try {
@@ -95,6 +111,7 @@ exports.deleteOnePost = [
 				AdminModel.findById(req.user._id).exec(),
 			]);
 
+			// Find index of the post and remove the post from blogPosts array
 			const index = user.blogPosts.indexOf(post._id);
 			if (index > -1) {
 				user.blogPosts.splice(index, 1);
@@ -109,6 +126,7 @@ exports.deleteOnePost = [
 
 exports.getLikesOfPost = async (req, res, next) => {
 	try {
+		// Only get the likesCount field
 		const likes = await BlogPostModel.findById(req.params.postId, "likesCount");
 
 		res.status(200).json({ likes });
@@ -118,10 +136,12 @@ exports.getLikesOfPost = async (req, res, next) => {
 };
 
 exports.updateLikesOfPost = [
+	// Check if likes is a number or not
 	check("likes", "Likes count need to be a number").isNumeric(),
 	validateErrorsHandler,
 	async (req, res, next) => {
 		try {
+			// Use postId params to find and update the likesCount field to req.body.likes
 			const post = await BlogPostModel.findByIdAndUpdate(
 				req.params.postId,
 				{
@@ -139,6 +159,7 @@ exports.updateLikesOfPost = [
 
 exports.getAllCommentsOfPost = async (req, res, next) => {
 	try {
+		// Find all comments belong to one post
 		const comments = await CommentModel.find({
 			belongToPost: req.params.postId,
 		});
@@ -158,6 +179,9 @@ exports.createNewComment = [
 			const { author, content } = req.body;
 
 			const [comment, post] = await Promise.all([
+				// Create new comment
+				// If author is an empty string or undefined
+				// Return "Anonymous"
 				CommentModel.create({
 					author: author == "" || author == undefined ? "Anonymous" : author,
 					content,
@@ -166,9 +190,10 @@ exports.createNewComment = [
 				BlogPostModel.findById(req.params.postId).exec(),
 			]);
 
+			// Append new comment to the comments array
 			post.comments = [...post.comments, comment];
 
-			Promise.all([await comment.save(), await post.save()]).then(
+			await Promise.all([comment.save(), post.save()]).then(
 				res.status(200).json({ comment, post })
 			);
 		} catch (error) {
@@ -179,6 +204,7 @@ exports.createNewComment = [
 
 exports.getOneComment = async (req, res, next) => {
 	try {
+		// Get one comment using commentId params
 		const comment = await CommentModel.findById(req.params.commentId).populate(
 			"belongToPost"
 		);
@@ -190,6 +216,7 @@ exports.getOneComment = async (req, res, next) => {
 };
 
 exports.deleteOneComment = [
+	// Authenticate using JWT with session disabled
 	passport.authenticate("jwt", { session: false }),
 	async (req, res, next) => {
 		try {
@@ -198,6 +225,7 @@ exports.deleteOneComment = [
 				BlogPostModel.findById(req.params.postId).exec(),
 			]);
 
+			// Find index of a comment and delete from comments array
 			const index = post.comments.indexOf(comment._id);
 			if (index > -1) {
 				post.comments.splice(index, 1);
@@ -224,10 +252,12 @@ exports.getLikesOfComment = async (req, res, next) => {
 };
 
 exports.updateLikesOfComment = [
+	// Check if likes is a number or not
 	check("likes", "Likes count need to be a number").isNumeric(),
 	validateErrorsHandler,
 	async (req, res, next) => {
 		try {
+			// Use commentId params to find and update likesCount field
 			const post = await CommentModel.findByIdAndUpdate(
 				req.params.commentId,
 				{ likesCount: req.body.likes },
