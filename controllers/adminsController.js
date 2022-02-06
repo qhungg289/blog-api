@@ -52,7 +52,7 @@ exports.signUp = [
 			// Save user document then respond back to the client
 			await user
 				.save()
-				.then(res.status(200).json({ msg: "Signup success", user }));
+				.then(res.status(200).json({ message: "Signup success", user }));
 		} catch (error) {
 			return next(error);
 		}
