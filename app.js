@@ -14,7 +14,7 @@ require("./config/auth");
 // Apply all necessary middlewares
 app.use(cors()); // Enable Cross Origin Resource Sharing
 app.use(morgan("dev")); // Developement logging
-app.use(express.json()); // Accept incomming json data
+app.use(express.json()); // Accept incoming json data
 app.use(express.urlencoded({ extended: false }));
 app.use(passport.initialize()); // Initialize passport js
 
