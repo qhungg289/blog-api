@@ -28,15 +28,18 @@ exports.createNewPost = [
 		try {
 			const { title, content, publishStatus } = req.body;
 
-			const post = await BlogPostModel.create({
-				title,
-				content,
-				publishStatus,
-			});
-			const user = await AdminModel.findById(req.user._id);
+			const [post, user] = await Promise.all([
+				BlogPostModel.create({
+					title,
+					content,
+					publishStatus,
+				}),
+				AdminModel.findById(req.user._id).exec(),
+			]);
+
 			user.blogPosts = [...user.blogPosts, post];
 
-			Promise.all([await post.save(), await user.save()]).then(
+			await Promise.all([post.save(), user.save()]).then(
 				res.status(200).json({ msg: "Success", post })
 			);
 		} catch (error) {
@@ -87,9 +90,17 @@ exports.deleteOnePost = [
 	passport.authenticate("jwt", { session: false }),
 	async (req, res, next) => {
 		try {
-			const post = await BlogPostModel.findByIdAndDelete(req.params.postId);
+			const [post, user] = await Promise.all([
+				BlogPostModel.findByIdAndDelete(req.params.postId).exec(),
+				AdminModel.findById(req.user._id).exec(),
+			]);
 
-			res.status(200).json({ post });
+			const index = user.blogPosts.indexOf(post._id);
+			if (index > -1) {
+				user.blogPosts.splice(index, 1);
+			}
+
+			await user.save().then(res.status(200).json({ post }));
 		} catch (error) {
 			return next(error);
 		}
@@ -146,12 +157,15 @@ exports.createNewComment = [
 		try {
 			const { author, content } = req.body;
 
-			const comment = await CommentModel.create({
-				author: author == "" || author == undefined ? "Anonymous" : author,
-				content,
-				belongToPost: req.params.postId,
-			});
-			const post = await BlogPostModel.findById(req.params.postId);
+			const [comment, post] = await Promise.all([
+				CommentModel.create({
+					author: author == "" || author == undefined ? "Anonymous" : author,
+					content,
+					belongToPost: req.params.postId,
+				}),
+				BlogPostModel.findById(req.params.postId).exec(),
+			]);
+
 			post.comments = [...post.comments, comment];
 
 			Promise.all([await comment.save(), await post.save()]).then(
@@ -179,11 +193,17 @@ exports.deleteOneComment = [
 	passport.authenticate("jwt", { session: false }),
 	async (req, res, next) => {
 		try {
-			const comment = await CommentModel.findByIdAndDelete(
-				req.params.commentId
-			);
+			const [comment, post] = await Promise.all([
+				CommentModel.findByIdAndDelete(req.params.commentId).exec(),
+				BlogPostModel.findById(req.params.postId).exec(),
+			]);
 
-			res.status(200).json({ comment });
+			const index = post.comments.indexOf(comment._id);
+			if (index > -1) {
+				post.comments.splice(index, 1);
+			}
+
+			await post.save().then(res.status(200).json({ comment }));
 		} catch (error) {
 			return next(error);
 		}
