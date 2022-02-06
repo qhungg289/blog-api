@@ -7,11 +7,52 @@ const validateErrorsHandler = require("../error_handlers/validateErrorsHandler")
 
 exports.getAllPosts = async (req, res, next) => {
 	try {
+		// Parse 2 query strings to a number
+		const page = parseInt(req.query.page);
+		const limit = parseInt(req.query.limit);
+
+		// Guard the request to prevent abuse
+		if (page < 1 || limit > 50) {
+			return res.status(400).json({ message: "Invalid page or limit" });
+		}
+
+		// Start value will use for the skip query
+		const start = (page - 1) * limit;
+		const end = page * limit;
+
+		const paginate = {};
+
+		// Get the total numbers of pages based on
+		// the numbers of documents and the limit
+		paginate.pagesCount = Math.ceil(
+			(await BlogPostModel.countDocuments()) / limit
+		);
+
+		// Check if the "end" value is smaller than the numbers
+		// of documents
+		if (end < (await BlogPostModel.countDocuments())) {
+			paginate.next = {
+				page: page + 1,
+				limit,
+			};
+		}
+
+		// Check if the "start" value is bigger than 0
+		if (start > 0) {
+			paginate.previous = {
+				page: page - 1,
+				limit,
+			};
+		}
+
 		// Get the list of all posts and populate "comments" field
-		const posts = await BlogPostModel.find({}).populate("comments");
+		const posts = await BlogPostModel.find()
+			.limit(limit) // Limit the documents
+			.skip(start) // Skip a "start" amounts of documents
+			.populate("comments");
 
 		// Respond posts list to the client
-		res.status(200).json({ posts });
+		res.status(200).json({ paginate, posts });
 	} catch (error) {
 		return next(error);
 	}
@@ -49,7 +90,7 @@ exports.createNewPost = [
 			// Save user and post documents to the database then send a respond with
 			// the messeage and the post object
 			await Promise.all([post.save(), user.save()]).then(
-				res.status(200).json({ msg: "Success", post })
+				res.status(200).json({ message: "Success", post })
 			);
 		} catch (error) {
 			return next(error);
