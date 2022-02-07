@@ -10,6 +10,20 @@ exports.getAllPosts = async (req, res, next) => {
 		// Parse 2 query strings to a number
 		const page = parseInt(req.query.page);
 		const limit = parseInt(req.query.limit);
+		// Get the post status to filter
+		const status = req.query.status;
+		let filter;
+
+		// Determined which filter to use for the documents query
+		if (status == "all") {
+			filter = {};
+		} else if (status == "unpublish") {
+			filter = { publishStatus: false };
+		} else if (status == "publish") {
+			filter = { publishStatus: true };
+		} else {
+			return res.status(400).json({ message: "Invalid publish status" });
+		}
 
 		// Guard the request to prevent abuse
 		if (page < 1 || limit > 50) {
@@ -25,12 +39,12 @@ exports.getAllPosts = async (req, res, next) => {
 		// Get the total numbers of pages based on
 		// the numbers of documents and the limit
 		paginate.pagesCount = Math.ceil(
-			(await BlogPostModel.countDocuments()) / limit
+			(await BlogPostModel.countDocuments(filter)) / limit
 		);
 
 		// Check if the "end" value is smaller than the numbers
 		// of documents
-		if (end < (await BlogPostModel.countDocuments())) {
+		if (end < (await BlogPostModel.countDocuments(filter))) {
 			paginate.next = {
 				page: page + 1,
 				limit,
@@ -46,7 +60,7 @@ exports.getAllPosts = async (req, res, next) => {
 		}
 
 		// Get the list of all posts and populate "comments" field
-		const posts = await BlogPostModel.find()
+		const posts = await BlogPostModel.find(filter)
 			.limit(limit) // Limit the documents
 			.skip(start) // Skip a "start" amounts of documents
 			.populate("comments");
