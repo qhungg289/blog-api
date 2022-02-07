@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const postsController = require("../controllers/postsController");
+const commentsController = require("../controllers/commentsController");
 
 // Get lists of all posts
 router.get("/", postsController.getAllPosts);
@@ -23,27 +24,30 @@ router.get("/:postId/likes", postsController.getLikesOfPost);
 router.put("/:postId/likes", postsController.updateLikesOfPost);
 
 // Get all comments of one post
-router.get("/:postId/comments", postsController.getAllCommentsOfPost);
+router.get("/:postId/comments", commentsController.getAllCommentsOfPost);
 
 // Create new comment for one post
-router.post("/:postId/comments", postsController.createNewComment);
+router.post("/:postId/comments", commentsController.createNewComment);
 
 // Get one comment
-router.get("/:postId/comments/:commentId", postsController.getOneComment);
+router.get("/:postId/comments/:commentId", commentsController.getOneComment);
 
 // Delete one comment (PROTECTED)
-router.delete("/:postId/comments/:commentId", postsController.deleteOneComment);
+router.delete(
+	"/:postId/comments/:commentId",
+	commentsController.deleteOneComment
+);
 
 // Get one comment likes count
 router.get(
 	"/:postId/comments/:commentId/likes",
-	postsController.getLikesOfComment
+	commentsController.getLikesOfComment
 );
 
 // Update one comment likes count
 router.put(
 	"/:postId/comments/:commentId/likes",
-	postsController.updateLikesOfComment
+	commentsController.updateLikesOfComment
 );
 
 module.exports = router;
