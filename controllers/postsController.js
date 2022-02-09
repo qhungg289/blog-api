@@ -11,7 +11,7 @@ exports.getAllPosts = async (req, res, next) => {
 		let filter;
 
 		// Determined which filter to use for the documents query
-		if (status == "all") {
+		if (status == "all" || status == undefined) {
 			filter = {};
 		} else if (status == "unpublish") {
 			filter = { publishStatus: false };
