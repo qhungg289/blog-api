@@ -8,8 +8,8 @@ const passport = require("passport");
 const app = express();
 
 // Require database and authentication config
-require("./config/db");
-require("./config/auth");
+require("./configs/db");
+require("./configs/auth");
 
 // Apply all necessary middlewares
 app.use(cors()); // Enable Cross Origin Resource Sharing
