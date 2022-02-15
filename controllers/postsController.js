@@ -2,7 +2,7 @@ const AdminModel = require("../models/AdminModel");
 const BlogPostModel = require("../models/BlogPostModel");
 const passport = require("passport");
 const { check } = require("express-validator");
-const validateErrorsHandler = require("../error_handlers/validateErrorsHandler");
+const validateErrorsHandler = require("../middlewares/validateErrorsHandler");
 
 exports.getAllPosts = async (req, res, next) => {
 	try {

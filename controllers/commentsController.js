@@ -2,7 +2,7 @@ const BlogPostModel = require("../models/BlogPostModel");
 const CommentModel = require("../models/CommentModel");
 const passport = require("passport");
 const { check } = require("express-validator");
-const validateErrorsHandler = require("../error_handlers/validateErrorsHandler");
+const validateErrorsHandler = require("../middlewares/validateErrorsHandler");
 
 exports.getAllCommentsOfPost = async (req, res, next) => {
 	try {
