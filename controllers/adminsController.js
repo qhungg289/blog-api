@@ -93,10 +93,8 @@ exports.logIn = [
 		// Extract user property from req object
 		const { user } = req;
 
-		// Sign a new token from user._id with a secret key with expriation of 2 days
-		const token = jwt.sign({ sub: user._id }, process.env.TOKEN_SECRET, {
-			expiresIn: "2 days",
-		});
+		// Sign a new token from user._id with a secret key
+		const token = jwt.sign({ sub: user._id }, process.env.TOKEN_SECRET);
 
 		// Respond the token back to the user
 		res.status(200).json({ user, token });
