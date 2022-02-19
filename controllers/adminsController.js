@@ -94,7 +94,10 @@ exports.logIn = [
 		const { user } = req;
 
 		// Sign a new token from user._id with a secret key
-		const token = jwt.sign({ sub: user._id }, process.env.TOKEN_SECRET);
+		const token = jwt.sign(
+			{ sub: user._id, fullName: user.fullName, username: user.username },
+			process.env.TOKEN_SECRET
+		);
 
 		// Respond the token back to the user
 		res.status(200).json({ user, token });
