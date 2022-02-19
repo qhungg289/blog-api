@@ -63,7 +63,8 @@ exports.getAllPosts = async (req, res, next) => {
 		const posts = await BlogPostModel.find(filter)
 			.limit(limit) // Limit the documents
 			.skip(start) // Skip a "start" amounts of documents
-			.populate("comments");
+			.populate("comments")
+			.populate("belongToAuthor");
 
 		// Respond posts list to the client
 		res.status(200).json({ paginate, posts });
@@ -94,6 +95,7 @@ exports.createNewPost = [
 					title,
 					content,
 					publishStatus,
+					belongToAuthor: req.user,
 				}),
 				AdminModel.findById(req.user._id).exec(),
 			]);
