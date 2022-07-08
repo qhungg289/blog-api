@@ -64,7 +64,7 @@ exports.getAllPosts = async (req, res, next) => {
 			.limit(limit) // Limit the documents
 			.skip(start) // Skip a "start" amounts of documents
 			.populate("comments")
-			.populate("belongToAuthor");
+			.populate({ path: "belongToAuthor", select: "-password" });
 
 		// Respond posts list to the client
 		res.status(200).json({ paginate, posts });
