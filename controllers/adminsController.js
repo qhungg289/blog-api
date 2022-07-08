@@ -12,13 +12,6 @@ exports.signUp = [
 		.trim()
 		.escape()
 		.isLength({ min: 1 }),
-	check("signUpKey").custom((value) => {
-		if (value != process.env.SIGNUP_SECRET || !value) {
-			throw new Error("Your sign up key is missing or incorrect");
-		}
-
-		return true;
-	}),
 	check("username")
 		.trim()
 		.escape()
@@ -38,18 +31,6 @@ exports.signUp = [
 		.trim()
 		.escape()
 		.isLength({ min: 4 }),
-	check("passwordConfirm")
-		.trim()
-		.escape()
-		.custom((value, { req }) => {
-			if (value != req.body.password) {
-				throw new Error(
-					"Password confirmation need to be the same as password"
-				);
-			}
-
-			return true;
-		}),
 	validateErrorsHandler,
 	async (req, res, next) => {
 		try {
@@ -57,7 +38,7 @@ exports.signUp = [
 			const { fullName, username, password } = req.body;
 
 			// Password hashing
-			const hashedPassword = await bcrypt.hash(password, 10);
+			let hashedPassword = await bcrypt.hash(password, 10);
 
 			// Create new user using the hashed password
 			const user = await AdminModel.create({
@@ -67,9 +48,12 @@ exports.signUp = [
 			});
 
 			// Save user document then respond back to the client
-			await user
-				.save()
-				.then(res.status(200).json({ message: "Signup success", user }));
+			await user.save().then(() => {
+				// Remove password field from the respone user object
+				user = user.toObject();
+				delete user.password;
+				res.status(200).json({ message: "Signup success", user });
+			});
 		} catch (error) {
 			return next(error);
 		}
@@ -91,7 +75,9 @@ exports.logIn = [
 	passport.authenticate("local", { session: false }),
 	(req, res) => {
 		// Extract user property from req object
-		const { user } = req;
+		let { user } = req;
+		user = user.toObject();
+		delete user.password;
 
 		// Sign a new token from user._id with a secret key
 		const token = jwt.sign(
